@@ -618,7 +618,13 @@ pub struct DriveItem {
 
 impl DriveItem {
     fn to_list_item(&self, _index: usize, width: usize) -> ListItem {
-        let spaces = width - self.name.len() - self.size.len() - "   ".len() - 4;
+        let base_length = self.name.len() + self.size.len() + 7; // 3 for "   " + 4 for safety margin
+        let spaces = if width > base_length {
+            width - base_length
+        } else {
+            0
+        };
+
         let line = match self.status {
             DriveStatus::NotSelected => Line::from(vec![
                 Span::raw("   "),
@@ -641,7 +647,12 @@ impl DriveItem {
             ]),
             DriveStatus::NotAvailable => {
                 let legend = "No Access";
-                let spaces = width - self.name.len() - legend.len() - "   ".len() - 4;
+                let base_length = self.name.len() + legend.len() + 7;
+                let spaces = if width > base_length {
+                    width - base_length
+                } else {
+                    0
+                };
                 Line::from(vec![
                     Span::raw("   "),
                     Span::styled(self.name.clone(), Style::default().fg(COOL_GREY)),
